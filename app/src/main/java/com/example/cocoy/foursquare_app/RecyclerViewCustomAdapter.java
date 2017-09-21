@@ -1,11 +1,14 @@
 package com.example.cocoy.foursquare_app;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -14,8 +17,9 @@ import java.util.ArrayList;
  */
 
 public class RecyclerViewCustomAdapter extends RecyclerView.Adapter<RecyclerViewCustomAdapter.CustomViewHolder>{
+    private Context mContext;
     // TODO: (1) DECLARAR ESTRUCTURA DE DATOS
-    private ArrayList<Foto> fotos;
+    private ArrayList<Venue> venues;
 
     // TODO: 11.- Creamos un miembro derivado de la interfaz creada
     private RecyclerViewClickListener listener;
@@ -23,8 +27,9 @@ public class RecyclerViewCustomAdapter extends RecyclerView.Adapter<RecyclerView
 
     // TODO: (2) CONSTRUCTOR
     // TODO: 12.- SE AÑADE AL CONSTRUCTOR EL LISTENER COMO PARÁMETRO
-    public RecyclerViewCustomAdapter(ArrayList<Foto> fotos, RecyclerViewClickListener listener) {
-        this.fotos = fotos;
+    public RecyclerViewCustomAdapter(Context c, ArrayList<Venue> venues, RecyclerViewClickListener listener) {
+        this.mContext = c;
+        this.venues = venues;
         this.listener = listener;
     }
 
@@ -45,14 +50,15 @@ public class RecyclerViewCustomAdapter extends RecyclerView.Adapter<RecyclerView
     // TODO: (4) SE IMPLEMENTAN MÉTODOS REQUERIDOS
     @Override
     public int getItemCount() {
-        return fotos.size();
+        return venues.size();
     }
 
     // TODO: (5) EL MÉTODO SIRVE PARA COLOCAR VALORES
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        holder.ivFoto.setImageResource(fotos.get(position).getImagen());
-        holder.tvNombre.setText(fotos.get(position).getNombre());
+        Picasso.with(mContext).load(venues.get(position).getPhoto()).skipMemoryCache().into(holder.ivFoto);
+        //holder.ivFoto.setImageResource(R.mipmap.like_icon);
+        holder.tvNombre.setText(venues.get(position).getName());
     }
 
 

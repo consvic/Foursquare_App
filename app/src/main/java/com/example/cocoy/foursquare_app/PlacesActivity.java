@@ -25,6 +25,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -36,6 +38,10 @@ public class PlacesActivity extends AppCompatActivity implements
     private TextView tvLat, tvLon;
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
+
+    private static final String CLIENT_ID = "0R1KYFSLIKTDHB0ED4JJD4MHZ3WF10S4EQFGICDTHSQLKUMG"; // clave ID
+    private static final String CLIENT_SECRET = "TO05OOMSDXIVYMWYLEU0LJ0G5PXX15YIV2LWROHIBMJYAPEM"; // clave secreta
+
 
     private RecyclerViewClickListener recyclerViewClickListener;
 
@@ -57,25 +63,11 @@ public class PlacesActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places);
 
-        tvLat = (TextView) findViewById(R.id.textView);
-        tvLon = (TextView) findViewById(R.id.textView2);
+        //tvLat = (TextView) findViewById(R.id.textView);
+        //tvLon = (TextView) findViewById(R.id.textView2);
 
         Intent intent = getIntent();
         token = intent.getStringExtra("accessToken");
-        url = "https://api.foursquare.com/v2/venues/explore" +
-                "  ?oauth_token="+ token ;
-        client = new NetworkServices();
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-
-        linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
-
-        ArrayList<Foto> fotos = new ArrayList<Foto>();
-        fotos.add(new Foto("Foto 01", R.mipmap.like_icon));
-        fotos.add(new Foto("Foto 02", R.mipmap.like_icon));
-        fotos.add(new Foto("Foto 03", R.mipmap.like_icon));
-
 
         // TODO: 3.- Inicializar cliente de Google API
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -84,38 +76,93 @@ public class PlacesActivity extends AppCompatActivity implements
                 .addApi(LocationServices.API)
                 .build();
 
-        //Onclick
-        // TODO: 13.- Ingresamos a nuestro adaptador un nuevo listener para poder saber el elemento al que se le dio click
-        RecyclerViewCustomAdapter adapter = new RecyclerViewCustomAdapter(fotos, new RecyclerViewClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                Toast.makeText(PlacesActivity.this, "Elemento " + position, Toast.LENGTH_SHORT).show();
-                Intent intent1 = new Intent(PlacesActivity.this, DescriptionActivity.class);
-                startActivity(intent1);
-            }
-        });
-        recyclerView.setAdapter(adapter);
 
-        /*new AsyncTask<Void,Void,Void>(){
+
+    }
+
+    // TODO: 9.- Se obtienen los valores de la ubicación
+    private void updateLocationUI() {
+       // tvLat.setText(String.valueOf(location.getLatitude()));
+        //tvLon.setText(String.valueOf(location.getLongitude()));
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        url = "https://api.foursquare.com/v2/venues/search?client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&v=20130815&ll="+String.valueOf(location.getLatitude())+","+String.valueOf(location.getLongitude())+"&limit=30";
+
+        client = new NetworkServices();
+
+        new AsyncTask<Void,Void,Void>(){
             String result;
 
             @Override
             protected Void doInBackground(Void... params) {
-                try{
+                try {
                     Log.d("Url: ", url);
                     result = client.makeRequest(url);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 return null;
+
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-            }
-        }.execute();*/
 
+                /*ArrayList<Foto> fotos = new ArrayList<Foto>();
+
+                fotos.add(new Foto("Foto 01", R.mipmap.like_icon));
+                fotos.add(new Foto("Foto 02", R.mipmap.like_icon));
+                fotos.add(new Foto("Foto 03", R.mipmap.like_icon));*/
+
+                final ArrayList<Venue> venues = new ArrayList<Venue>();
+                JSONParser jsonParser = new JSONParser(result);
+
+                try {
+                    for(int i=0; i<jsonParser.getSizeArray();i++) {
+                        Log.d("lo hizo: ",i+"");
+                        venues.add(new Venue(jsonParser.getVenueID(i),
+                                            jsonParser.getVenueName(i),
+                                            jsonParser.getVenueAddress(i),
+                                            jsonParser.getCategoryName(i),
+                                           // jsonParser.getPhone(i),
+                                            jsonParser.getCheckIns(i),
+                                            jsonParser.getPrefix(i) + "bg_88" + jsonParser.getSufix(i)));
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } finally {
+                    // TODO: 13.- Ingresamos a nuestro adaptador un nuevo listener para poder saber el elemento al que se le dio click
+                    RecyclerViewCustomAdapter adapter = new RecyclerViewCustomAdapter(getBaseContext(),venues, new RecyclerViewClickListener() {
+                        @Override
+                        public void onClick(View view, int position) {
+                            //Toast.makeText(PlacesActivity.this, "Elemento " + position, Toast.LENGTH_SHORT).show();
+                            ArrayList<String> content = new ArrayList<String>();
+                            content.add(venues.get(position).getId());
+                            content.add(venues.get(position).getName());
+                            content.add(venues.get(position).getAddress());
+                            content.add(venues.get(position).getCategory());
+                            content.add(venues.get(position).getCheckins());
+                            Intent intent1 = new Intent(PlacesActivity.this, DescriptionActivity.class);
+                            intent1.putExtra("position",position);
+                            intent1.putExtra("token",token);
+                            intent1.putStringArrayListExtra("content",content);
+                            startActivity(intent1);
+                        }
+                    });
+                    recyclerView.setAdapter(adapter);
+                }
+
+
+            }
+        }.execute();
     }
 
 
@@ -155,6 +202,7 @@ public class PlacesActivity extends AppCompatActivity implements
             latitud = location.getLatitude();
             longitud = location.getLongitude();
             updateLocationUI();
+            Log.d("Permision Result", "---------");
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(PlacesActivity.this);
             builder.setTitle("NO LOCATION FOUND")
@@ -169,6 +217,7 @@ public class PlacesActivity extends AppCompatActivity implements
                     .show();
         }
     }
+
 
     // TODO 6.- Definimos el método getLocation()
 
@@ -259,12 +308,7 @@ public class PlacesActivity extends AppCompatActivity implements
         }
     }
 
-    // TODO: 9.- Se obtienen los valores de la ubicación
-    private void updateLocationUI() {
-        tvLat.setText(String.valueOf(location.getLatitude()));
-        tvLon.setText(String.valueOf(location.getLongitude()));
-        url = url + "&ll=" + latitud + "," + longitud;
-    }
+
 
     /**
      *
@@ -305,6 +349,7 @@ public class PlacesActivity extends AppCompatActivity implements
                     latitud = location.getLatitude();
                     longitud = location.getLongitude();
                     updateLocationUI();
+                    Log.d("Permission result", "---------");
                 } else
                     Toast.makeText(this, "Ubicación no encontrada", Toast.LENGTH_LONG).show();
             } else {
@@ -348,6 +393,7 @@ public class PlacesActivity extends AppCompatActivity implements
         latitud = location.getLatitude();
         longitud = location.getLongitude();
         updateLocationUI();
+        //Log.d("on Location changed", "---------");
     }
 
 

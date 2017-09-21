@@ -18,7 +18,9 @@ public class JSONParser {
 
     public JSONObject getParser() throws JSONException {
         JSONObject jsonObject = new JSONObject(result);
-        return jsonObject;
+        String response = jsonObject.getString("response");
+        JSONObject responseObject = new JSONObject(response);
+        return responseObject;
 
     }
 
@@ -26,30 +28,108 @@ public class JSONParser {
 
     public JSONArray getArray() throws JSONException {
         JSONObject jsonObject = getParser();
-        String photosString = jsonObject.getString("photos");
-        JSONObject photoObject = new JSONObject(photosString);
-        String photoString = photoObject.getString("photo");
-        Log.d("photo string: ",photoString);
-
-        JSONArray jsonArray = new JSONArray(photoString);
+        String venues = jsonObject.getString("venues");
+        JSONArray jsonArray = new JSONArray(venues);
 
         return  jsonArray;
     }
 
-    public String getTitle() throws JSONException{
-        JSONObject jsonObject = getParser();
-        String photo = jsonObject.getString("photo");
-        String content = new JSONObject(photo).getString("title");
-        String title = new JSONObject(content).getString("_content");
-
-        return title;
+    public int getSizeArray() throws JSONException {
+        return getArray().length();
     }
 
-    public String getUser() throws JSONException{
-        JSONObject jsonObject = getParser();
-        String photo = jsonObject.getString("photo");
-        String owner = new JSONObject(photo).getString("owner");
-        String username = new JSONObject(owner).getString("username");
-        return username;
+    public String getVenueID(int n) throws JSONException {
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String venueID = jsonObject.getString("id");
+
+        return venueID;
+
+    }
+
+    public String getVenueName(int n) throws JSONException {
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String venueName = jsonObject.getString("name");
+
+        return venueName;
+
+    }
+
+    public String getVenueAddress(int n) throws JSONException {
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String locationString = jsonObject.getString("location");
+        JSONObject jsonObject1 = new JSONObject(locationString);
+        String location="";
+        String address = jsonObject1.getString("address");
+        String city = jsonObject1.getString("city");
+        String country = jsonObject1.getString("country");
+
+        if (address != "") location = location + address + ". ";
+        if(city != "") location = location + city + ", ";
+        if (country != "") location = location + country;
+
+        return location;
+
+    }
+
+    public String getCategoryName(int n) throws JSONException {
+        String categoryName;
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String locationString = jsonObject.getString("categories");
+        JSONArray jsonArray1 = new JSONArray(locationString);
+        JSONObject jsonObject2 = jsonArray1.getJSONObject(0);
+
+        categoryName = jsonObject2.getString("name");
+
+        return categoryName;
+    }
+
+    /*public String getPhone(int n) throws JSONException {
+        String phone;
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String contactString = jsonObject.getString("contact");
+        JSONObject jsonObject1 = new JSONObject(contactString);
+        phone = jsonObject1.getString("phone");
+
+        return phone;
+    }*/
+
+    public String getCheckIns(int n) throws JSONException {
+        String checkins;
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String contactString = jsonObject.getString("stats");
+        JSONObject jsonObject1 = new JSONObject(contactString);
+        checkins = jsonObject1.getString("checkinsCount");
+
+        return checkins;
+    }
+
+    public String getPrefix(int n) throws JSONException{
+        String prefix;
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String categoriesString = jsonObject.getString("categories");
+        JSONArray jsonArray1 = new JSONArray(categoriesString);
+        JSONObject jsonObject2 = jsonArray1.getJSONObject(0);
+        prefix = new JSONObject(jsonObject2.getString("icon")).getString("prefix");
+
+        return prefix;
+    }
+
+    public String getSufix(int n) throws JSONException{
+        String sufix;
+        JSONArray jsonArray = getArray();
+        JSONObject jsonObject = jsonArray.getJSONObject(n);
+        String categoriesString = jsonObject.getString("categories");
+        JSONArray jsonArray1 = new JSONArray(categoriesString);
+        JSONObject jsonObject2 = jsonArray1.getJSONObject(0);
+        sufix = new JSONObject(jsonObject2.getString("icon")).getString("suffix");
+
+        return sufix;
     }
 }

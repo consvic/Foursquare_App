@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     //TODO 2: Boton de login
     private Button bLogin;
-    private Button bLocation;
+    //private Button bLocation;
 
 
    private TextView tvLat, tvLon;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO 3: Link button
         bLogin = (Button) findViewById(R.id.bLogin);
 
-        bLocation = (Button) findViewById(R.id.bLocation);
+       // bLocation = (Button) findViewById(R.id.bLocation);
 
         manageLoginUI();
 
