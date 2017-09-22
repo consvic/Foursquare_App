@@ -25,7 +25,11 @@
             android:theme="@android:style/Theme.Dialog" />
         <activity android:name=".PlacesActivity" />
         <activity android:name=".DescriptionActivity"
-                    android:theme="@style/MyMaterialTheme"/>
+                android:theme="@style/MyMaterialTheme">
+                <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".PlacesActivity" />
+            </activity>
 
     </application>
 

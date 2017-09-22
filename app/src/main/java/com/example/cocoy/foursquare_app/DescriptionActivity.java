@@ -102,7 +102,7 @@ public class DescriptionActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     JSONObject jsonObject1 = jsonObject.getJSONObject("response").getJSONObject("photos");
-                    Log.d("count: ",jsonObject1.getInt("count")  + "");
+                    Log.d("Photo count: ",jsonObject1.getInt("count")  + "");
                     if(jsonObject1.getInt("count") != 0){
                         JSONArray jsonArray = jsonObject1.getJSONArray("items");
                         JSONObject photoObject = jsonArray.getJSONObject(0);

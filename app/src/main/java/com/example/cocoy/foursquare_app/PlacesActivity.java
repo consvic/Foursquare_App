@@ -1,6 +1,7 @@
 package com.example.cocoy.foursquare_app;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +60,9 @@ public class PlacesActivity extends AppCompatActivity implements
     private Location location;           // Objeto para obtener ubicación
     private final int REQUEST_LOCATION = 1;   // Código de petición para ubicación
 
+    private ProgressBar progress;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +70,7 @@ public class PlacesActivity extends AppCompatActivity implements
 
         //tvLat = (TextView) findViewById(R.id.textView);
         //tvLon = (TextView) findViewById(R.id.textView2);
+        progress = (ProgressBar) findViewById(R.id.indeterminateBar);
 
         Intent intent = getIntent();
         token = intent.getStringExtra("accessToken");
@@ -111,6 +117,12 @@ public class PlacesActivity extends AppCompatActivity implements
             }
 
             @Override
+            protected void onPreExecute() {
+                progress.setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 
@@ -139,6 +151,7 @@ public class PlacesActivity extends AppCompatActivity implements
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } finally {
+
                     // TODO: 13.- Ingresamos a nuestro adaptador un nuevo listener para poder saber el elemento al que se le dio click
                     RecyclerViewCustomAdapter adapter = new RecyclerViewCustomAdapter(getBaseContext(),venues, new RecyclerViewClickListener() {
                         @Override
@@ -158,6 +171,8 @@ public class PlacesActivity extends AppCompatActivity implements
                         }
                     });
                     recyclerView.setAdapter(adapter);
+                    progress.setVisibility(View.GONE);
+
                 }
 
 
